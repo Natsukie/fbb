@@ -18,15 +18,21 @@
 				border-radius: 5px;
 				position: absolute;
 				transition: all 0.5s ease;
+				justify-content: center; /* 水平居中 */
+				align-items: center; /* 垂直居中 */
 			}
+
 		</style>
 	</head>
-	<body>
-		<div id="game"></div>
+	<body style="height: 2000;">
+		<div style="margin-left: auto; margin-right: auto; margin-top: auto; margin-bottom: auto; height: 2000;">
+			<div id="game" style="margin-left: auto; margin-right: auto;"></div>
+		</div>
 		<script type="text/javascript">
 			var g_block = [],
 				g_img = [],
 				g_total=0;
+				targetId = null
 			g_init()
             g_start()
 			function g_init() {
@@ -51,25 +57,34 @@
 				})
 				g_block.forEach(function(div, i) {
 					div.style.transform = game_img[i]
-						div.setAttribute("draggable", "true") //设置图片块允许拖放
-						div.setAttribute("ondragstart", "drag(event)") //拖动函数
-						div.setAttribute("ondragover", "allowDrop(event)") //设置游戏块的放置事件:允许放置
-						div.setAttribute("ondrop", "drop(event)") //放置函数
+					div.addEventListener('click', function(ev){
+						if(targetId != null){
+							drop(ev, targetId)
+							targetId = null
+							div.style.opacity= 1;
+							return 
+						}
+						div.style.opacity= 0.5;
+						targetId = ev.target.id
+					});
+					// div.setAttribute("draggable", "true") //设置图片块允许拖放
+					// div.setAttribute("ondragstart", "drag(event)") //拖动函数
+					// div.setAttribute("ondragover", "allowDrop(event)") //设置游戏块的放置事件:允许放置
+					// div.setAttribute("ondrop", "drop(event)") //放置函数
 				})
 			}
 			//---------HTML5拖放事件-----------------
-			function drag(ev) { //拖动事件
-				//设置拖动元素时传递数据:将当前事件的元素id以文本传送
-				ev.dataTransfer.setData("text/plain", ev.target.id);
-		}
-			function allowDrop(ev) {
-				ev.preventDefault();
-			}
+		// 	function drag(ev) { //拖动事件
+		// 		//设置拖动元素时传递数据:将当前事件的元素id以文本传送
+		// 		ev.dataTransfer.setData("text/plain", ev.target.id);
+		// }
+			// function allowDrop(ev) {
+			// 	ev.preventDefault();
+			// }
 
-			function drop(ev) { //放置事件
-			g_total++
-				var id = ev.dataTransfer.getData("text"); //获取拖动时传递过来的信息:id
-				var div = document.getElementById(id); //根据id获取页面元素
+			function drop(ev, targetId) { //放置事件
+				var div = document.getElementById(targetId); //根据id获取页面元素
+				div.style.opacity= 1;
 				var thisdiv = ev.target.style.transform
 				var thatdiv = div.style.transform
 				ev.target.style.transform = thatdiv
