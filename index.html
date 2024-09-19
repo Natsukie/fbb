@@ -1,17 +1,104 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>互动按钮示例</title>
-</head>
-<body>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style type="text/css">
+			#game {
+				width: 400px;
+				height: 400px;
+				border: 1px solid #a33;
+				position: relative;
+			}
 
-<button onclick="showAlert()">点击我</button>
+			.mydiv {
+				width: 200px;
+				height: 200px;
+				margin: 1px;
+				border-radius: 5px;
+				position: absolute;
+				transition: all 0.5s ease;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="game"></div>
+		<script type="text/javascript">
+			var g_block = [],
+				g_img = [],
+				g_total=0;
+			g_init()
+            g_start()
+			function g_init() {
+				for (var i = 0; i < 2; i++) {
+					for (var j = 0; j < 2; j++) {
+						var img = document.createElement("div")
+						img.style.background = "url(bg.jpg) " + (-j * 200) + "px " + (-i * 200) + "px /400px 400px"
+						img.id = "img-" + i + "-" + j
+						img.className = "mydiv"
+						img.style.transform = "translate(" + (j * 200) + "px," + (i * 200) + "px)"
+						game.appendChild(img) //调试用:将图片添加到游戏块
+						g_img.push("translate(" + (j * 200) + "px, " + (i * 200) + "px)") //保存原始图片块
+						g_block.push(img) //保存原始游戏块
+					}
+				}
+			}
 
-<script>
-    function showAlert() {
-        alert("你点击了按钮！");
-    }
-</script>
+			function g_start() { //开始游戏,将图片块随机打乱
+				var game_img = g_img.slice()
+				game_img.sort(function() {
+					return Math.random() - 0.5
+				})
+				g_block.forEach(function(div, i) {
+					div.style.transform = game_img[i]
+						div.setAttribute("draggable", "true") //设置图片块允许拖放
+						div.setAttribute("ondragstart", "drag(event)") //拖动函数
+						div.setAttribute("ondragover", "allowDrop(event)") //设置游戏块的放置事件:允许放置
+						div.setAttribute("ondrop", "drop(event)") //放置函数
+				})
+			}
+			//---------HTML5拖放事件-----------------
+			function drag(ev) { //拖动事件
+				//设置拖动元素时传递数据:将当前事件的元素id以文本传送
+				ev.dataTransfer.setData("text/plain", ev.target.id);
+		}
+			function allowDrop(ev) {
+				ev.preventDefault();
+			}
 
-</body>
+			function drop(ev) { //放置事件
+			g_total++
+				var id = ev.dataTransfer.getData("text"); //获取拖动时传递过来的信息:id
+				var div = document.getElementById(id); //根据id获取页面元素
+				var thisdiv = ev.target.style.transform
+				var thatdiv = div.style.transform
+				ev.target.style.transform = thatdiv
+				div.style.transform = thisdiv
+				if (check()) {
+                    for (var i = 0; i < 2; i++) {
+                        for (var j = 0; j < 2; j++) {
+                            var img = document.createElement("div")
+                            img.style.background = "url(fbb.jpg) " + (-j * 200) + "px " + (-i * 200) + "px /400px 400px"
+                            img.id = "img-" + i + "-" + j
+                            img.className = "mydiv"
+                            img.style.transform = "translate(" + (j * 200) + "px," + (i * 200) + "px)"
+                            game.appendChild(img) //调试用:将图片添加到游戏块
+                            g_img.push("translate(" + (j * 200) + "px, " + (i * 200) + "px)") //保存原始图片块
+                            g_block.push(img) //保存原始游戏块
+                        }
+                    }
+                    setTimeout(function() {
+						alert("恭喜完成! fbb 下班")
+					}, 500)
+				}
+			}
+
+			function check() { //检查两个数组是否相等
+				for (var i = 0; i < g_block.length; i++) {
+					if (g_block[i].style.transform != g_img[i]) return false
+				}
+				return true
+			}
+		</script>
+	</body>
 </html>
